@@ -56,7 +56,7 @@ void CTrack::apply_template()
 		*track_it = *temp_it;
 		temp_it++;
 		track_it++;
-		
+
 	}
 
 }
@@ -64,6 +64,9 @@ void CTrack::apply_template()
 void CTrack::print()
 {
 	vector<char>::iterator it;
+	for (size_t i = 0; i < 30 - track.size(); i++)
+		cout << " ";
+
 	for (it = track.begin(); it != track.end(); it++)
 	{
 		cout << *it;
@@ -101,24 +104,41 @@ CRailway::CRailway(int number_of_tracks, int number_of_cars)
 {
 	srand(time(NULL));
 	tracks = new list<CTrack*>;
+	int n = 30;
 	for (int i = 0; i < number_of_tracks; i++)
-		tracks->push_front(new CTrack(30));
+	{
+		if (i == 0) tracks->push_back(new CTrack(n));
+		else tracks->push_back(new CTrack(n - 10));
+
+		n = n - 2;
+
+	}
+
 	//test
-	 
+
 	train = new vector<char>;
-	addCars(number_of_cars);     
+	addCars(number_of_cars);
 }
 
 void CRailway::print_tracks()
 {
+
 	list<CTrack*>::iterator it = tracks->begin();
 	for (auto x : *train)
 		cout << x;
+	cout << " ";
 	for (size_t i = 0; i < tracks->size(); i++)
 	{
+
+		if (i > 0)
+			for (size_t i = 0; i < train->size() + 1; i++)
+				cout << " ";
+
+
 		(*it)->print();
 		it++;
 		cout << endl;
+
 	}
 }
 
@@ -165,7 +185,7 @@ int main()
 	train->print();
 	train->addCar();
 	train->print();*/
-	 
+
 	if (_getch() == 27) cout << "50";
 	delete railway;
 	return 0;
