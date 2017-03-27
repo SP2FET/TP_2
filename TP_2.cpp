@@ -30,7 +30,9 @@ public:
 CTrack::CTrack(int length)
 {
 	track.resize(length, '=');
+	//cout << "generate:" << endl;
 	generate_template();
+	//cout << "apply:" << endl;
 	apply_template();
 }
 
@@ -49,13 +51,13 @@ void CTrack::apply_template()
 	vector<char>::reverse_iterator temp_it, track_it;
 	temp_it = track_template.rbegin();
 	track_it = track.rbegin();
-
-	/*for (size_t i = 0; i < rand() % 3; i++)
+	for (size_t i = 0; i < rand() % 3; i++)
 	{
 		*track_it = *temp_it;
 		temp_it++;
 		track_it++;
-	}*/
+		
+	}
 
 }
 
@@ -66,7 +68,7 @@ void CTrack::print()
 	{
 		cout << *it;
 	}
-	cout << "Tor: [";
+	cout << " Tor: [";
 	for (it = track_template.begin(); it != track_template.end(); it++)
 	{
 		cout << *it;
@@ -100,8 +102,8 @@ CRailway::CRailway(int number_of_tracks, int number_of_cars)
 	srand(time(NULL));
 	tracks = new list<CTrack*>;
 	for (int i = 0; i < number_of_tracks; i++)
-		tracks->push_front(new CTrack(50));
-
+		tracks->push_front(new CTrack(30));
+	//test
 
 	train = new vector<char>;
 	addCars(number_of_cars);
@@ -161,7 +163,7 @@ int main()
 	train->print();
 	train->addCar();
 	train->print();*/
-
+	 
 	if (_getch() == 27) cout << "50";
 	delete railway;
 	return 0;
