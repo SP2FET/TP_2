@@ -51,7 +51,7 @@ void CTrack::apply_template()
 	vector<char>::reverse_iterator temp_it, track_it;
 	temp_it = track_template.rbegin();
 	track_it = track.rbegin();
-	for (size_t i = 0; i < rand() % 3; i++)
+	for (int i = 0; i < rand() % 3; i++)
 	{
 		*track_it = *temp_it;
 		temp_it++;
@@ -104,14 +104,16 @@ CRailway::CRailway(int number_of_tracks, int number_of_cars)
 	for (int i = 0; i < number_of_tracks; i++)
 		tracks->push_front(new CTrack(30));
 	//test
-
+	 
 	train = new vector<char>;
-	addCars(number_of_cars);
+	addCars(number_of_cars);     
 }
 
 void CRailway::print_tracks()
 {
 	list<CTrack*>::iterator it = tracks->begin();
+	for (auto x : *train)
+		cout << x;
 	for (size_t i = 0; i < tracks->size(); i++)
 	{
 		(*it)->print();
@@ -151,7 +153,7 @@ void CRailway::addCars(size_t amount)
 int main()
 {
 
-	CRailway *railway = new CRailway(5, 10);
+	CRailway *railway = new CRailway(5, 7);
 
 	cout << "train size:" << railway->get_train_length() << endl;
 	railway->print_tracks();
