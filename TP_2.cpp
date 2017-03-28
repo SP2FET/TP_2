@@ -1,4 +1,4 @@
-// TP_2.cpp: Okreúla punkt wejúcia dla aplikacji konsoli.
+// TP_2.cpp: Okre≈ìla punkt wej≈ìcia dla aplikacji konsoli.
 //
 
 #include "stdafx.h"
@@ -10,6 +10,57 @@
 #include <list>
 using namespace std;
 
+
+class CTrain
+{
+
+private:
+	queue<char> train;
+public:
+	CTrain(int number_of_cars);
+	//~CTrain();
+	int get_train_length() { return train.size(); }
+	void resize_train(int number_of_cars);
+	void add_car() {train.push(rand() % 4 + 65); }
+	void add_car(char value) { train.push(value); }
+	int get_last_car();
+	void delete_last_car();
+
+
+};
+
+CTrain::CTrain(int number_of_cars)
+{
+	resize_train(number_of_cars);
+
+}
+
+int CTrain::get_last_car()
+{ 
+	if(!train.empty()) return train.front();
+	//else cout << "End of train!" << endl;
+}
+
+void CTrain::delete_last_car() 
+{
+
+	if (!train.empty()) train.front();
+	//else cout << "End of train!" << endl; 
+}
+
+void CTrain::resize_train(int number_of_cars)
+{
+	if(number_of_cars > train.size()) train.push(rand() % 4 + 65);
+		else if (number_of_cars < train.size())
+		{
+			while (number_of_cars != train.size())  delete_last_car();
+
+		}
+	//    else cout<<"The train size is the same as insterted value!"<<endl;
+}
+
+
+#pragma endregion
 
 #pragma region Track
 
