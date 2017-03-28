@@ -170,10 +170,70 @@ void CRailway::addCars(size_t amount)
 
 #pragma endregion
 
+#pragma region Grafika
+
+class CGraphics
+{
+private:
+	vector<vector<char>> buffer;
+public:
+	CGraphics(int x_size, int y_size);
+	CGraphics(int x_size);
+	void insertXY(int x, int y, char to_insert) { buffer[y][x] = to_insert; }
+	void insertXY(int x, int y, int to_insert) { buffer[y][x] = to_insert + '0'; }
+	void clearXY(int x, int y) { buffer[y][x] = ' '; }
+	void print();
+};
+
+CGraphics::CGraphics(int x_size, int y_size)
+{
+	buffer.resize(y_size);
+	vector<vector<char>>::iterator line_it = buffer.begin();
+	vector<char>::iterator col_it;
+
+	for (; line_it != buffer.end(); line_it++)
+	{
+		(*line_it).resize(x_size);
+	}
+}
+
+CGraphics::CGraphics(int x_size)
+{
+	buffer.resize(x_size);
+	vector<vector<char>>::iterator line_it = buffer.begin();
+	vector<char>::iterator col_it;
+
+	for (; line_it != buffer.end(); line_it++)
+	{
+		(*line_it).resize(x_size);
+	}
+}
+
+void CGraphics::print()
+{
+	vector<vector<char>>::iterator line_it = buffer.begin();
+	vector<char>::iterator col_it;
+	cout << "Y size: " << buffer.size() << endl;
+	cout << "X size: " << buffer[0].size() << endl;
+	for (; line_it != buffer.end(); line_it++)
+	{
+		col_it = (*line_it).begin();
+		for (; col_it != (*line_it).end(); col_it++)
+		{
+			cout << *col_it;
+		}
+		cout << endl;
+	}
+
+}
+#pragma endregion
+
+
 int main()
 {
 
 	CRailway *railway = new CRailway(5, 7);
+	CGraphics graphics(20, 20);
 
 	cout << "train size:" << railway->get_train_length() << endl;
 	railway->print_tracks();
@@ -185,7 +245,10 @@ int main()
 	train->print();
 	train->addCar();
 	train->print();*/
+	graphics.insertXY(0, 9, 'D');
+	graphics.insertXY(0, 10, 5);
 
+	graphics.print();
 	if (_getch() == 27) cout << "50";
 	delete railway;
 	return 0;
