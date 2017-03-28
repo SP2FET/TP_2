@@ -1,19 +1,82 @@
-// TP_2.cpp: Okreœla punkt wejœcia dla aplikacji konsoli.
+// TP_2.cpp: Okre�la punkt wej�cia dla aplikacji konsoli.
 //
 
 #include "stdafx.h"
 #include <iostream>
 #include <conio.h>
 #include <vector>
+#include <queue>
 #include <algorithm>
 #include <ctime>
 #include <list>
+#include <stack>
 using namespace std;
 
 
+#pragma region Track
+
+class CTrack
+{
+private:
+
+	stack<char> track;
+	vector<char> pattern;
+	int track_max_lenght;
+
+public:
+
+	CTrack(int length = rand() % 2 + 3);
+	void generate_pattern(int lenght = rand() % 2 + 3); // nie wiem czy to bedzie dzialac jako parametr domyslny
+	int get_pattern_lenght() { pattern.size(); }
+
+	void clear_track();
+	bool check_track_is_filled();
+	int get_track_lenght() { track.size(); }
+	void add_car(char value);
+
+};
+
+CTrack::CTrack(int length)
+{
+	generate_pattern(length);
+}
+
+void CTrack::generate_pattern(int lenght)
+{
+	//srand(time(NULL));
+	pattern.clear();
+	for (int i = 0; i < lenght; i++)
+	{
+		pattern.push_back(rand() % 4 + 65);
+	}
+}
+
+
+
+bool CTrack::check_track_is_filled()
+{
+	if (track.size() < track_max_lenght) return true;
+		else return false;
+}
+
+void CTrack::add_car(char value)
+{
+	if (check_track_is_filled()) track.push(value);
+}
+
+void CTrack::clear_track()
+{
+	while (!track.empty()) track.pop();
+}
+
+#pragma endregion
+
+
+
+#pragma region Train
+
 class CTrain
 {
-
 private:
 	queue<char> train;
 public:
@@ -25,8 +88,6 @@ public:
 	void add_car(char value) { train.push(value); }
 	int get_last_car();
 	void delete_last_car();
-
-
 };
 
 CTrain::CTrain(int number_of_cars)
@@ -43,8 +104,7 @@ int CTrain::get_last_car()
 
 void CTrain::delete_last_car() 
 {
-
-	if (!train.empty()) train.front();
+	if (!train.empty()) train.pop();
 	//else cout << "End of train!" << endl; 
 }
 
@@ -62,75 +122,8 @@ void CTrain::resize_train(int number_of_cars)
 
 #pragma endregion
 
-#pragma region Track
 
-class CTrack
-{
-private:
 
-	vector<char> track;
-	vector<char> track_template;
-	void generate_template();
-	void apply_template();
-public:
-	CTrack(int length);
-
-	void print();
-};
-
-CTrack::CTrack(int length)
-{
-	track.resize(length, '=');
-	//cout << "generate:" << endl;
-	generate_template();
-	//cout << "apply:" << endl;
-	apply_template();
-}
-
-void CTrack::generate_template()
-{
-	//srand(time(NULL));
-
-	for (int i = 0; i < rand() % 2 + 3; i++)
-	{
-		track_template.push_back(rand() % 4 + 65);
-	}
-}
-
-void CTrack::apply_template()
-{
-	vector<char>::reverse_iterator temp_it, track_it;
-	temp_it = track_template.rbegin();
-	track_it = track.rbegin();
-	for (int i = 0; i < rand() % 3; i++)
-	{
-		*track_it = *temp_it;
-		temp_it++;
-		track_it++;
-
-	}
-
-}
-
-void CTrack::print()
-{
-	vector<char>::iterator it;
-	for (size_t i = 0; i < 30 - track.size(); i++)
-		cout << " ";
-
-	for (it = track.begin(); it != track.end(); it++)
-	{
-		cout << *it;
-	}
-	cout << " Tor: [";
-	for (it = track_template.begin(); it != track_template.end(); it++)
-	{
-		cout << *it;
-	}
-	cout << "]" << endl;
-}
-
-#pragma endregion
 
 
 #pragma region Railways
