@@ -21,18 +21,18 @@ private:
 
 	stack<char> track;
 	vector<char> pattern;
-	int track_max_lenght;
+	int capacity;
 
 public:
 
 	CTrack(int length = rand() % 2 + 3);
 	void generate_pattern(int lenght = rand() % 2 + 3); // nie wiem czy to bedzie dzialac jako parametr domyslny
-	int get_pattern_lenght() { pattern.size(); }
+	int get_pattern_length() { pattern.size(); }
 	int get_last_car() { track.top(); }
 
 	void clear_track();
-	bool check_track_is_filled();
-	int get_track_lenght() { track.size(); }
+	bool is_filled();
+	int length() { track.size(); }
 	void add_car(char value);
 
 };
@@ -54,15 +54,15 @@ void CTrack::generate_pattern(int lenght)
 
 
 
-bool CTrack::check_track_is_filled()
+bool CTrack::is_filled()
 {
-	if (track.size() < track_max_lenght) return true;
+	if (track.size() < capacity) return true;
 	else return false;
 }
 
 void CTrack::add_car(char value)
 {
-	if (check_track_is_filled()) track.push(value);
+	if (is_filled()) track.push(value);
 }
 
 void CTrack::clear_track()
@@ -83,14 +83,15 @@ private:
 public:
 	CTrain(int number_of_cars);
 	//~CTrain();
-	int get_train_length() { return train.size(); }
-	void resize_train(int number_of_cars);
+	int length() { return train.size(); }
+	void resize(int number_of_cars);
 	void add_car() { train.push(rand() % 4 + 65); }
 	void add_car(char value) { train.push(value); }
-	int get_last_car();
-	void delete_last_car();
+	int get_first_car();
+	void delete_first_car();
 };
 
+<<<<<<< Updated upstream
 CTrain::CTrain(int number_of_cars)
 {
 	resize_train(number_of_cars);
@@ -118,15 +119,32 @@ void CTrain::resize_train(int number_of_cars)
 
 	}
 	//    else cout<<"The train size is the same as insterted value!"<<endl;
+=======
+	for (it = track.begin(); it != track.end(); it++)
+	{
+		cout << *it;
+	}
+	cout << " Tor: [";
+	for (auto x : track_template)
+		cout << x;
+	/*for (it = track_template.begin(); it != track_template.end(); it++)
+	{
+		cout << *it;
+	}*/
+	cout << "]" << endl;
+>>>>>>> Stashed changes
 }
 
 
 #pragma endregion
 
+<<<<<<< Updated upstream
 
 
 
 
+=======
+>>>>>>> Stashed changes
 #pragma region Railways
 
 class CRailway
@@ -285,7 +303,8 @@ CGraphics::CGraphics(int x_size, int y_size)
 CGraphics::CGraphics(int x_size)
 {
 	buffer.resize(x_size);
-	vector<vector<char>>::iterator line_it = buffer.begin();
+	//vector<vector<char>>::iterator line_it = buffer.begin();
+	auto line_it = buffer.begin();
 	vector<char>::iterator col_it;
 
 	for (; line_it != buffer.end(); line_it++)
@@ -317,8 +336,12 @@ void CGraphics::print()
 
 int main()
 {
+<<<<<<< Updated upstream
 
 //	CRailway *railway = new CRailway(5, 7);
+=======
+	CRailway *railway = new CRailway(5, 7);
+>>>>>>> Stashed changes
 	CGraphics graphics(20, 20);
 
 	//cout << "train size:" << railway->get_train_length() << endl;
