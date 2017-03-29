@@ -28,6 +28,7 @@ public:
 	CTrack(int length = rand() % 2 + 3);
 	void generate_pattern(int lenght = rand() % 2 + 3); // nie wiem czy to bedzie dzialac jako parametr domyslny
 	int get_pattern_lenght() { pattern.size(); }
+	int get_last_car() { track.top(); }
 
 	void clear_track();
 	bool check_track_is_filled();
@@ -56,7 +57,7 @@ void CTrack::generate_pattern(int lenght)
 bool CTrack::check_track_is_filled()
 {
 	if (track.size() < track_max_lenght) return true;
-		else return false;
+	else return false;
 }
 
 void CTrack::add_car(char value)
@@ -84,7 +85,7 @@ public:
 	//~CTrain();
 	int get_train_length() { return train.size(); }
 	void resize_train(int number_of_cars);
-	void add_car() {train.push(rand() % 4 + 65); }
+	void add_car() { train.push(rand() % 4 + 65); }
 	void add_car(char value) { train.push(value); }
 	int get_last_car();
 	void delete_last_car();
@@ -97,12 +98,12 @@ CTrain::CTrain(int number_of_cars)
 }
 
 int CTrain::get_last_car()
-{ 
-	if(!train.empty()) return train.front();
+{
+	if (!train.empty()) return train.front();
 	//else cout << "End of train!" << endl;
 }
 
-void CTrain::delete_last_car() 
+void CTrain::delete_last_car()
 {
 	if (!train.empty()) train.pop();
 	//else cout << "End of train!" << endl; 
@@ -110,12 +111,12 @@ void CTrain::delete_last_car()
 
 void CTrain::resize_train(int number_of_cars)
 {
-	if(number_of_cars > train.size()) train.push(rand() % 4 + 65);
-		else if (number_of_cars < train.size())
-		{
-			while (number_of_cars != train.size())  delete_last_car();
+	if (number_of_cars > train.size()) train.push(rand() % 4 + 65);
+	else if (number_of_cars < train.size())
+	{
+		while (number_of_cars != train.size())  delete_last_car();
 
-		}
+	}
 	//    else cout<<"The train size is the same as insterted value!"<<endl;
 }
 
@@ -131,11 +132,17 @@ void CTrain::resize_train(int number_of_cars)
 class CRailway
 {
 private:
-	list<CTrack*> *tracks;
-	vector<char> *train;
+	vector<CTrack> tracks;
+	CTrain train;
 public:
 	CRailway(int number_of_tracks, int number_of_cars);
 	~CRailway();
+	void add_tracks(int number_of_tracks, int pattern_sizes);
+	void move_car(int track_number);
+	bool check_car_combination(int track_number);
+
+
+
 	int get_train_length() { return train->size(); }
 	void addCar(char value) { train->push_back(value); }
 	void addCar() { train->push_back((rand() % 4) + 65); }
@@ -144,11 +151,41 @@ public:
 
 };
 
+
+void CRailway::add_tracks(int number_of_tracks, int pattern_sizes)
+{
+	for (int i = 0; i < number_of_tracks, i++)  tracks.push_back(CTrack(pattern_sizes));
+}
+
+
+
+bool check_car_combination(int track_number)
+{
+	static bool found_combination;
+
+	if(tracks[track_number].)
+
+
+}
+
+
+
+void CRailway::move_car(int track_number)
+{
+	if (train.get_train_length())
+	{
+		tracks[track_number].add_car(train.get_last_car);
+		train.delete_last_car;
+	}
+	//else cout << "There is no cars left" << endl;
+}
+
+
+
+
 CRailway::CRailway(int number_of_tracks, int number_of_cars)
 {
 	srand(time(NULL));
-	tracks = new list<CTrack*>;
-	int n = 30;
 	for (int i = 0; i < number_of_tracks; i++)
 	{
 		if (i == 0) tracks->push_back(new CTrack(n));
@@ -163,6 +200,8 @@ CRailway::CRailway(int number_of_tracks, int number_of_cars)
 	train = new vector<char>;
 	addCars(number_of_cars);
 }
+
+
 
 void CRailway::print_tracks()
 {
@@ -213,6 +252,8 @@ void CRailway::addCars(size_t amount)
 }
 
 #pragma endregion
+
+*/
 
 #pragma region Grafika
 
@@ -273,14 +314,15 @@ void CGraphics::print()
 #pragma endregion
 
 
+
 int main()
 {
 
-	CRailway *railway = new CRailway(5, 7);
+//	CRailway *railway = new CRailway(5, 7);
 	CGraphics graphics(20, 20);
 
-	cout << "train size:" << railway->get_train_length() << endl;
-	railway->print_tracks();
+	//cout << "train size:" << railway->get_train_length() << endl;
+	//railway->print_tracks();
 	/*train->print();
 	cout << " ";
 	track->print();
@@ -288,13 +330,12 @@ int main()
 	cout << "train size:" << railway->get_train_length() << endl;
 	train->print();
 	train->addCar();
-	train->print();*/
+	train->print(); */
 	graphics.insertXY(0, 9, 'D');
 	graphics.insertXY(0, 10, 5);
 
 	graphics.print();
 	if (_getch() == 27) cout << "50";
-	delete railway;
+	//delete railway;
 	return 0;
 }
-
