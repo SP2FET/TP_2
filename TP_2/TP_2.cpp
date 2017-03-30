@@ -35,13 +35,15 @@ public:
 	bool is_filled() { return (track.size() < capacity) ? false : true; }
 	int  length() { return track.size(); }
 	void add_car(char value) { if (!is_filled()) track.push(value); }
-
+	int get_capacity() { return capacity; }
 };
 
 CTrack::CTrack(int max_capacity)
 {
 	capacity = max_capacity;
 	generate_pattern();
+	if (pattern.size() > capacity)  capacity = pattern.size();
+
 }
 
 void CTrack::generate_pattern()
@@ -110,13 +112,13 @@ void CTrain::resize(int number_of_cars)
 
 #pragma region Grafika
 
-class CGraphics
+class CBuffer
 {
 private:
 	vector<vector<char>> buffer;
 public:
-	CGraphics(int x_size, int y_size);
-	CGraphics(int x_size);
+	CBuffer(int x_size, int y_size);
+	CBuffer(int x_size);
 	void insertXY(int x, int y, char to_insert) { buffer[y][x] = to_insert; }
 	void insertXY(int x, int y, char* to_insert);
 	void insertXY(int x, int y, vector<char> to_insert);
@@ -127,7 +129,7 @@ public:
 	void print();
 };
 
-CGraphics::CGraphics(int x_size, int y_size)
+CBuffer::CBuffer(int x_size, int y_size)
 {
 	buffer.resize(y_size);
 	vector<vector<char>>::iterator line_it = buffer.begin();
@@ -139,7 +141,7 @@ CGraphics::CGraphics(int x_size, int y_size)
 	}
 }
 
-CGraphics::CGraphics(int x_size)
+CBuffer::CBuffer(int x_size)
 {
 	buffer.resize(x_size);
 	vector<vector<char>>::iterator line_it = buffer.begin();
@@ -151,7 +153,7 @@ CGraphics::CGraphics(int x_size)
 	}
 }
 
-void CGraphics::print()
+void CBuffer::print()
 {
 	vector<vector<char>>::iterator line_it = buffer.begin();
 	vector<char>::iterator col_it;
@@ -170,27 +172,28 @@ void CGraphics::print()
 
 }
 
-void CGraphics::insertXY(int x, int y, char* to_insert)
+void CBuffer::insertXY(int x, int y, char* to_insert)
 {
 	for (size_t i = 0; *(to_insert + i) != 0; i++)
 		buffer[y][x + i] = *(to_insert + i);
 }
 
-void CGraphics::insertXY(int x, int y, vector<char> to_insert)
+void CBuffer::insertXY(int x, int y, vector<char> to_insert)
 {
 	for (size_t i = 0; i < to_insert.size(); i++)
 		buffer[y][x + i] = to_insert[i];
 }
 
-void CGraphics::writeTrack(int x, int y, int length, int number)
+void CBuffer::writeTrack(int x, int y, int length, int capacity)
 {
 	for (int i = 0; i < length; i++)
 	{
 		buffer[y][x + i] = '=';
+		if (i == capacity) buffer[y][x + i] = '|';
 	}
 }
 
-void CGraphics::writeTrain(int x, int y, CTrain train)
+void CBuffer::writeTrain(int x, int y, CTrain train)
 {
 	for (int i = 0; train.length() > 0; i++)
 	{
@@ -210,38 +213,38 @@ class CRailway
 private:
 	vector<CTrack> tracks;
 	CTrain train;
-	CGraphics *buffer;
+	CBuffer *buffer;
 public:
 	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars);
 	~CRailway();
 	void move_car(int track_number);
 	bool check_car_combination(int track_number);
-	void display();
+	void display() { buffer->print(); }
+	void apply_template();
 
 };
 
-void CRailway::display()
+void CRailway::apply_template()
 {
 	buffer->writeTrain(1, 1, train);
-	buffer->writeTrack(train.length() + 5, 1, 20, -1);
+
 
 	for (int i = 0; i < tracks.size(); i++)
 	{
+		if (i == 0)
+			buffer->writeTrack(train.length() + (2 * i) + 5, (2 * i) + 1, 25 - (2 * i), tracks[i].get_capacity());
+		else
+			buffer->writeTrack(train.length() + (2 * i) + 10, (2 * i) + 1, 20 - (2 * i), tracks[i].get_capacity());
 
-		buffer->writeTrack(train.length() + (2 * i) + 10, (2 * i) + 1, 20 - (2 * i), i + 1);
 		buffer->insertXY(train.length() + 31, (2 * i) + 1, "TOR");
 		buffer->insertXY(train.length() + 35, (2 * i) + 1, i + 1);
 		buffer->insertXY(train.length() + 36, (2 * i) + 1, ": [");
 		buffer->insertXY(train.length() + 39, (2 * i) + 1, tracks[i].get_pattern());
-		buffer->insertXY(train.length() + 39+tracks[i].pattern_length(), (2 * i) + 1, ']');
+		buffer->insertXY(train.length() + 39 + tracks[i].pattern_length(), (2 * i) + 1, ']');
 	}
 
 
 	// szablon narysowany
-
-
-
-	buffer->print();
 }
 /*
 bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
@@ -316,13 +319,15 @@ void CRailway::move_car(int track_number)
 
 CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
 {
-	buffer = new CGraphics(60, 10);
+	buffer = new CBuffer(60, 10);
 
 
 	for (int i = 0; i < number_of_tracks; i++)
 	{
+
 		tracks.push_back(CTrack(tracks_capacity));
 		tracks[i].generate_pattern();
+		
 	}
 
 
@@ -341,7 +346,7 @@ int main()
 
 	//CRailway *railway = new CRailway(5, 7);
 	cout << "test";
-	CRailway *game = new CRailway(5, 10, 10);
+	CRailway *game = new CRailway(5, 3, 10);
 
 	//cout << "train size:" << railway->get_train_length() << endl;
 	//railway->print_tracks();
@@ -353,7 +358,7 @@ int main()
 	train->print();
 	train->addCar();
 	train->print(); */
-
+	game->apply_template();
 	game->display();
 	//buffer.print();
 	if (_getch() == 27) cout << "50";
