@@ -28,7 +28,7 @@ public:
 	CTrack(int length);
 	void generate_pattern();
 	int  pattern_length() { return pattern.size(); }
-	int  get_rev_pattern_car(int number);
+	char  get_rev_pattern_car(int number);
 	char get_first_car() { return track.top(); }
 
 	void clear_track() { while (!track.empty()) track.pop(); }
@@ -55,7 +55,7 @@ void CTrack::generate_pattern()
 }
 
 
-int CTrack::get_rev_pattern_car(int number)
+char CTrack::get_rev_pattern_car(int number)
 {
 	vector<char>::reverse_iterator rit;
 
@@ -106,105 +106,6 @@ void CTrain::resize(int number_of_cars)
 }
 
 #pragma endregion
-
-
-
-#pragma region Railways
-
-class CRailway
-{
-private:
-	vector<CTrack> tracks;
-	CTrain train;
-public:
-	CRailway(int number_of_tracks,int tracks_capacity, int number_of_cars);
-	//~CRailway();
-	void move_car(int track_number);
-	bool check_car_combination(int track_number);
-
-};
-
-/*
-bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
-{
-	static int car_number = 0;
-	bool found_combination = false;
-	
-
-	if(!car_number)
-	{
-		if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number))  car_number = 1;
-	}
-		else 
-		{
-			if(tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
-			 else
-				{
-					car_number = 0;
-				}
-		}
-
-	if (car_number == tracks[track_number].pattern_length())
-	{
-		found_combination = true;
-		car_number = 0;
-
-	}
-
-	return found_combination;
-	
-} */
-
-bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
-{
-	static int car_number = 0;
-
-		if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
-			else
-			{
-				car_number = 0;
-				return false;
-			}
-
-	if (car_number == tracks[track_number].pattern_length())
-		{
-			car_number = 0;
-			return true;
-		}
-	else return false;
-
-}
-
-
-
-
-void CRailway::move_car(int track_number)
-{
-	if (train.length())
-	{
-		tracks[track_number].add_car(train.get_first_car());
-		train.delete_first_car();
-	}
-	//else cout << "There is no cars left" << endl;
-}
-
-
-
-
-CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) ///!!!!!!!!!!!!!!!
-{
-	//train = CTrain(number_of_cars);
-	for (int i = 0; i < number_of_tracks; i++)
-	{
-		tracks.push_back(CTrack(tracks_capacity));
-		tracks[i].generate_pattern();
-	}
-		
-}
-
-
-#pragma endregion
-
 
 
 #pragma region Grafika
@@ -287,16 +188,125 @@ void CGraphics::writeTrain(int x, int y, CTrain train)
 #pragma endregion
 
 
+
+#pragma region Railways
+
+class CRailway
+{
+private:
+	vector<CTrack> tracks;
+	CTrain train;
+	CGraphics *buffer;
+public:
+	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars);
+	~CRailway();
+	void move_car(int track_number);
+	bool check_car_combination(int track_number);
+	void display() { buffer->print(); }
+
+};
+
+/*
+bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
+{
+static int car_number = 0;
+bool found_combination = false;
+
+
+if(!car_number)
+{
+if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number))  car_number = 1;
+}
+else
+{
+if(tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
+else
+{
+car_number = 0;
+}
+}
+
+if (car_number == tracks[track_number].pattern_length())
+{
+found_combination = true;
+car_number = 0;
+
+}
+
+return found_combination;
+
+} */
+
+bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
+{
+	static int car_number = 0;
+
+	if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
+	else
+	{
+		car_number = 0;
+		return false;
+	}
+
+	if (car_number == tracks[track_number].pattern_length())
+	{
+		car_number = 0;
+		return true;
+	}
+	else return false;
+
+}
+
+CRailway::~CRailway()
+{
+
+	delete buffer;
+}
+
+
+void CRailway::move_car(int track_number)
+{
+	if (train.length())
+	{
+		tracks[track_number].add_car(train.get_first_car());
+		train.delete_first_car();
+	}
+	//else cout << "There is no cars left" << endl;
+}
+
+
+
+
+CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
+{
+	buffer = new CGraphics(70, 15);
+
+
+	for (int i = 0; i < number_of_tracks; i++)
+	{
+		tracks.push_back(CTrack(tracks_capacity));
+		tracks[i].generate_pattern();
+	}
+
+	buffer->writeTrain(0, 1, train);
+	buffer->writeTrack(15, 1, 20);
+}
+
+
+#pragma endregion
+
+
+
 int main()
 {
 
-
+	srand(time(NULL));
 	//	CRailway *railway = new CRailway(5, 7);
 
 	//CRailway *railway = new CRailway(5, 7);
 
-	CGraphics buffer(20, 50);
-
+	CRailway *game = new CRailway(5, 10, 10);
+	CGraphics buffer(30, 20);
 	//cout << "train size:" << railway->get_train_length() << endl;
 	//railway->print_tracks();
 	/*train->print();
@@ -310,7 +320,8 @@ int main()
 	buffer.insertXY(0, 9, 'D');
 	buffer.insertXY(0, 10, 5);
 	buffer.writeTrack(4, 4, 10);
-	buffer.print();
+	game->display();
+	//buffer.print();
 	if (_getch() == 27) cout << "50";
 	//delete railway;
 	return 0;
