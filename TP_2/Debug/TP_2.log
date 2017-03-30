@@ -1,0 +1,9 @@
+﻿  TP_2.cpp
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(35): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(97): warning C4018: ">": niezgodność typu ze znakiem/bez znaku
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(101): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(228): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(339): warning C4244: "argument": konwersja z "time_t" do "unsigned int", możliwa utrata danych
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(86): warning C4715: "CTrain::get_first_car”: niewszystkie ścieżki kodu zwracają wartość
+  TP_2.vcxproj -> C:\Users\Bartek\TP_2\TP_2\Debug\TP_2.exe
+  TP_2.vcxproj -> C:\Users\Bartek\TP_2\TP_2\Debug\TP_2.pdb (Partial PDB)

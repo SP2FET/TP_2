@@ -178,10 +178,10 @@ void CGraphics::writeTrack(int x, int y, int length)
 
 void CGraphics::writeTrain(int x, int y, CTrain train)
 {
+	int i = 0;
 	for (size_t i = 0; i < train.length(); i++)
 	{
-		buffer[y][x + i] = train.get_first_car();
-		train.delete_first_car();
+		buffer[y][x + i] = train.length();
 	}
 }
 
@@ -279,7 +279,7 @@ void CRailway::move_car(int track_number)
 
 CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
 {
-	buffer = new CGraphics(70, 15);
+	buffer = new CGraphics(30, 15);
 
 
 	for (int i = 0; i < number_of_tracks; i++)
@@ -288,7 +288,7 @@ CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars
 		tracks[i].generate_pattern();
 	}
 
-	buffer->writeTrain(0, 1, train);
+	//buffer->writeTrain(0, 1, train);
 	buffer->writeTrack(15, 1, 20);
 }
 
@@ -299,14 +299,15 @@ CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars
 
 int main()
 {
-
+	cout << "test";
+	return 0;
 	srand(time(NULL));
 	//	CRailway *railway = new CRailway(5, 7);
 
 	//CRailway *railway = new CRailway(5, 7);
-
+	cout << "test";
 	CRailway *game = new CRailway(5, 10, 10);
-	CGraphics buffer(30, 20);
+	
 	//cout << "train size:" << railway->get_train_length() << endl;
 	//railway->print_tracks();
 	/*train->print();
@@ -317,10 +318,8 @@ int main()
 	train->print();
 	train->addCar();
 	train->print(); */
-	buffer.insertXY(0, 9, 'D');
-	buffer.insertXY(0, 10, 5);
-	buffer.writeTrack(4, 4, 10);
-	game->display();
+	
+	//game->display();
 	//buffer.print();
 	if (_getch() == 27) cout << "50";
 	//delete railway;
