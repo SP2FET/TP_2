@@ -1,0 +1,13 @@
+﻿  stdafx.cpp
+  TP_2.cpp
+TP_2.cpp(35): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+TP_2.cpp(45): warning C4018: ">": niezgodność typu ze znakiem/bez znaku
+TP_2.cpp(99): warning C4018: ">": niezgodność typu ze znakiem/bez znaku
+TP_2.cpp(103): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+TP_2.cpp(250): warning C4018: "<": niezgodność typu ze znakiem/bez znaku
+TP_2.cpp(396): warning C4244: "argument": konwersja z "time_t" do "unsigned int", możliwa utrata danych
+  Trwa generowanie kodu
+c:\users\bartek\tp_2\tp_2\tp_2.cpp(88): warning C4715: "CTrain::get_first_car”: niewszystkie ścieżki kodu zwracają wartość
+  All 430 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Zakończono generowanie kodu
+  TP_2.vcxproj -> C:\Users\Bartek\TP_2\TP_2\Release\TP_2.exe

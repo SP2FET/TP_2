@@ -30,6 +30,7 @@ public:
 	int  pattern_length() { return pattern.size(); }
 	char  get_rev_pattern_car(int number);
 	char get_first_car() { return track.top(); }
+	void delete_first_car() { if (!track.empty()) track.pop(); }
 	vector<char> get_pattern() { return pattern; }
 	void clear_track() { while (!track.empty()) track.pop(); }
 	bool is_filled() { return (track.size() < capacity) ? false : true; }
@@ -85,10 +86,15 @@ public:
 	void resize(int number_of_cars);
 	void add_car() { train.push(rand() % 4 + 65); }
 	void add_car(char value) { train.push(value); }
-	char get_first_car() { if (!train.empty()) return train.front(); }
+	char get_first_car();
 	void delete_first_car() { if (!train.empty()) train.pop(); }
 };
 
+char CTrain::get_first_car()
+{
+	if (!train.empty()) return train.front();
+	else return ' ';
+}
 CTrain::CTrain(int number_of_cars)
 {
 	resize(number_of_cars);
@@ -124,7 +130,8 @@ public:
 	void insertXY(int x, int y, vector<char> to_insert);
 	void insertXY(int x, int y, int to_insert) { buffer[y][x] = to_insert + '0'; }
 	void clearXY(int x, int y) { buffer[y][x] = ' '; }
-	void writeTrack(int x, int y, int length, int number);
+	void clearBuffer();
+	void writeTrack(int x, int y, int length, CTrack track);
 	void writeTrain(int x, int y, CTrain train);
 	void print();
 };
@@ -184,24 +191,45 @@ void CBuffer::insertXY(int x, int y, vector<char> to_insert)
 		buffer[y][x + i] = to_insert[i];
 }
 
-void CBuffer::writeTrack(int x, int y, int length, int capacity)
+void CBuffer::writeTrack(int x, int y, int template_length, CTrack track)
 {
-	for (int i = 0; i < length; i++)
+	int capacity = track.get_capacity();
+	int length = track.length();
+	for (int i = 0; i < template_length; i++)
 	{
 		buffer[y][x + i] = '=';
 		if (i == capacity) buffer[y][x + i] = '|';
+	}
+	for (int i = length; i > 0; i--)
+	{
+		buffer[y][x + capacity - i] = track.get_first_car();
+		track.delete_first_car();
 	}
 }
 
 void CBuffer::writeTrain(int x, int y, CTrain train)
 {
-	for (int i = 0; train.length() > 0; i++)
+	for (int i = 5; i > 0; i--)
 	{
 		buffer[y][x + i] = train.get_first_car();
 		train.delete_first_car();
 	}
 }
 
+void CBuffer::clearBuffer()
+{
+	vector<vector<char>>::iterator line_it = buffer.begin();
+	vector<char>::iterator col_it;
+	for (; line_it != buffer.end(); line_it++)
+	{
+
+		for (col_it = (*line_it).begin(); col_it != (*line_it).end(); col_it++)
+		{
+			*col_it = ' ';
+		}
+		cout << endl;
+	}
+}
 #pragma endregion
 
 
@@ -214,35 +242,60 @@ private:
 	vector<CTrack> tracks;
 	CTrain train;
 	CBuffer *buffer;
+	int selected_track;
 public:
 	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars);
 	~CRailway();
 	void move_car(int track_number);
 	bool check_car_combination(int track_number);
-	void display() { buffer->print(); }
+	void display();
 	void apply_template();
+	void parse_keys();
 
 };
 
 void CRailway::apply_template()
 {
-	buffer->writeTrain(1, 1, train);
+	buffer->clearBuffer();
+
 
 
 	for (int i = 0; i < tracks.size(); i++)
 	{
-		if (i == 0)
-			buffer->writeTrack(train.length() + (2 * i) + 5, (2 * i) + 1, 25 - (2 * i), tracks[i].get_capacity());
+		if (i == 0)				//train.length
+			buffer->writeTrack(10 + (2 * i) + 5, (2 * i) + 1, 25 - (2 * i), tracks[i]);
 		else
-			buffer->writeTrack(train.length() + (2 * i) + 10, (2 * i) + 1, 20 - (2 * i), tracks[i].get_capacity());
+			buffer->writeTrack(10 + (2 * i) + 10, (2 * i) + 1, 20 - (2 * i), tracks[i]);
 
-		buffer->insertXY(train.length() + 31, (2 * i) + 1, "TOR");
-		buffer->insertXY(train.length() + 35, (2 * i) + 1, i + 1);
-		buffer->insertXY(train.length() + 36, (2 * i) + 1, ": [");
-		buffer->insertXY(train.length() + 39, (2 * i) + 1, tracks[i].get_pattern());
-		buffer->insertXY(train.length() + 39 + tracks[i].pattern_length(), (2 * i) + 1, ']');
+		buffer->insertXY(10 + 31, (2 * i) + 1, "TOR");
+		buffer->insertXY(10 + 35, (2 * i) + 1, i + 1);
+		buffer->insertXY(10 + 36, (2 * i) + 1, ": [");
+		buffer->insertXY(10 + 39, (2 * i) + 1, tracks[i].get_pattern());
+		buffer->insertXY(10 + 39 + tracks[i].pattern_length(), (2 * i) + 1, ']');
 	}
 
+	switch (selected_track)
+	{
+	case 1:
+		break;
+
+	case 5:
+		buffer->insertXY(25, 8, "\\\\");
+		buffer->insertXY(26, 9, "\\\\");
+
+	case 4:
+		buffer->insertXY(23, 6, "\\\\");
+		buffer->insertXY(24, 7, "\\\\");
+
+	case 3:
+		buffer->insertXY(21, 4, "\\\\");
+		buffer->insertXY(22, 5, "\\\\");
+
+	case 2:
+		buffer->insertXY(19, 2, "\\\\");
+		buffer->insertXY(20, 3, "\\\\");
+		break;
+	}
 
 	// szablon narysowany
 }
@@ -308,7 +361,7 @@ void CRailway::move_car(int track_number)
 {
 	if (train.length())
 	{
-		tracks[track_number].add_car(train.get_first_car());
+		tracks[track_number - 1].add_car(train.get_first_car());
 		train.delete_first_car();
 	}
 	//else cout << "There is no cars left" << endl;
@@ -327,13 +380,54 @@ CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars
 
 		tracks.push_back(CTrack(tracks_capacity));
 		tracks[i].generate_pattern();
-		
+
 	}
 
 
 }
 
+void CRailway::parse_keys()
+{
+	char key = _getch();
 
+
+	switch (key)
+	{
+	case '1':
+		selected_track = 1;
+		break;
+
+	case 'w':
+		move_car(selected_track);
+		break;
+
+	case '5':
+		selected_track = 5;
+		break;
+	case '4':
+		selected_track = 4;
+		break;
+	case '3':
+		selected_track = 3;
+		break;
+	case '2':
+		selected_track = 2;
+		break;
+
+	default:
+		parse_keys();
+		break;
+	}
+
+	
+}
+
+void CRailway::display()
+{
+	apply_template();
+	buffer->writeTrain(1, 1, train);
+	buffer->print();
+}
 #pragma endregion
 
 
@@ -342,26 +436,17 @@ int main()
 {
 
 	srand(time(NULL));
-	//	CRailway *railway = new CRailway(5, 7);
 
-	//CRailway *railway = new CRailway(5, 7);
-	cout << "test";
-	CRailway *game = new CRailway(5, 3, 10);
-
-	//cout << "train size:" << railway->get_train_length() << endl;
-	//railway->print_tracks();
-	/*train->print();
-	cout << " ";
-	track->print();
-	train->addCar('A');
-	cout << "train size:" << railway->get_train_length() << endl;
-	train->print();
-	train->addCar();
-	train->print(); */
-	game->apply_template();
+	CRailway *game = new CRailway(5, 5, 10);
 	game->display();
-	//buffer.print();
+	while (1)
+	{
+		game->parse_keys();
+		game->display();
+	}
+
+
 	if (_getch() == 27) cout << "50";
-	//delete railway;
+	delete game;
 	return 0;
 }
