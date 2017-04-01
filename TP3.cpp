@@ -10,6 +10,7 @@
 #include <ctime>
 #include <list>
 #include <stack>
+#include <cstdlib>
 using namespace std;
 
 
@@ -172,7 +173,7 @@ public:
 	void insertXY(int x, int y, char to_insert) { buffer[y][x] = to_insert; }
 	void insertXY(int x, int y, char* to_insert);
 	void insertXY(int x, int y, vector<char> to_insert);
-	void insertXY(int x, int y, int to_insert) { buffer[y][x] = to_insert + '0'; }
+	void insertXY(int x, int y, int to_insert);
 	void clearXY(int x, int y) { buffer[y][x] = ' '; }
 	void clearBuffer();
 	void writeTrack(int x, int y, int length, CTrack track);
@@ -235,6 +236,14 @@ void CBuffer::insertXY(int x, int y, vector<char> to_insert)
 		buffer[y][x + i] = to_insert[i];
 }
 
+void CBuffer::insertXY(int x, int y, int to_insert)
+{
+	char char_buffer[10];
+	_itoa_s(to_insert, char_buffer, 10);
+	for (size_t i = 0; char_buffer[i] != 0; i++)
+		buffer[y][x + i] = char_buffer[i];
+}
+
 void CBuffer::writeTrack(int x, int y, int template_length, CTrack track)
 {
 	int capacity = track.get_capacity();
@@ -287,7 +296,7 @@ private:
 	CTrain train;
 	CBuffer *buffer;
 	int selected_track = 1;
-	int gained_points = 0;
+	int score = 0;
 	int difficulty_level = 1;
 	bool game_over = false;
 public:
@@ -371,26 +380,26 @@ void CRailway::make_turn(int track_number)   //TODO odejmowanie punktow jak tor 
 	if (!tracks[track_number].is_filled())
 	{
 		move_car(track_number);
-		gained_points++;
+		score++;
 
 		if (tracks[track_number].check_car_combination())
 		{
 			difficulty_level++;
 			tracks[track_number].delete_matched_cars();
 			tracks[track_number].generate_pattern(difficulty_level);
-			gained_points += 10;
+			score += 10;
 
 		}
 
 		
 	}
-	else game_over= true;
+	else game_over = true;
 
 }
 
 CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars, int difficulty_level) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
 {
-	buffer = new CBuffer(60, 10);
+	buffer = new CBuffer(70, 10);
 
 
 	for (int i = 0; i < number_of_tracks; i++)
@@ -445,6 +454,18 @@ void CRailway::display()
 {
 	apply_template();
 	buffer->writeTrain(1, 1, train);
+	buffer->insertXY(60, 1, "Score: ");
+	buffer->insertXY(67, 1, score);
+	if (game_over)
+	{
+		buffer->clearBuffer();
+		buffer->insertXY(25, 5, "GAME OVER!");
+		buffer->insertXY(25, 6, "Score: ");
+		buffer->insertXY(32, 6, score);
+		buffer->print();
+		_getch();
+		exit(0);
+	}
 	buffer->print();
 }
 #pragma endregion
