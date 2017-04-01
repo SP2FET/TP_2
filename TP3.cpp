@@ -26,8 +26,8 @@ private:
 
 public:
 
-	CTrack(int length);
-	void generate_pattern();
+	CTrack(int length, int pattern_length);
+	void generate_pattern(int pattern_length);
 	int  pattern_length() { return pattern.size(); }
 	char  get_rev_pattern_car(int number);
 	char get_first_car() { return track.top(); }
@@ -43,19 +43,19 @@ public:
 	int get_capacity() { return capacity; }
 };
 
-CTrack::CTrack(int max_capacity)
+CTrack::CTrack(int max_capacity, int pattern_length)
 {
 	capacity = max_capacity;
-	generate_pattern();
+	generate_pattern(pattern_length);
 	if (pattern.size() > capacity)  capacity = pattern.size();
 
 }
 
-void CTrack::generate_pattern()
+void CTrack::generate_pattern(int pattern_length)
 {
 	//srand(time(NULL));
 	pattern.clear();
-	for (int i = 0; i < rand() % 2 + 3; i++)
+	for (int i = 0; i < rand() % 2 + pattern_length; i++)
 	{
 		pattern.push_back(rand() % 4 + 65);
 	}
@@ -286,11 +286,12 @@ private:
 	vector<CTrack> tracks;
 	CTrain train;
 	CBuffer *buffer;
-	int selected_track=1;
+	int selected_track = 1;
 	int gained_points = 0;
+	int difficulty_level = 1;
 	bool game_over = false;
 public:
-	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars);
+	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars, int difficulty_level);
 	~CRailway();
 	void move_car(int track_number);
 	void make_turn(int track_number);
@@ -374,17 +375,20 @@ void CRailway::make_turn(int track_number)   //TODO odejmowanie punktow jak tor 
 
 		if (tracks[track_number].check_car_combination())
 		{
+			difficulty_level++;
 			tracks[track_number].delete_matched_cars();
+			tracks[track_number].generate_pattern(difficulty_level);
 			gained_points += 10;
+
 		}
 
 		
 	}
-	else game_over=true;
+	else game_over= true;
 
 }
 
-CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
+CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars, int difficulty_level) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
 {
 	buffer = new CBuffer(60, 10);
 
@@ -392,8 +396,8 @@ CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars
 	for (int i = 0; i < number_of_tracks; i++)
 	{
 
-		tracks.push_back(CTrack(tracks_capacity));
-		tracks[i].generate_pattern();
+		tracks.push_back(CTrack(tracks_capacity,difficulty_level));
+	//	tracks[i].generate_pattern(difficulty_level);
 	//	tracks[i].add_start_cars();
 
 	}
@@ -452,7 +456,7 @@ int main()
 
 	srand(time(NULL));
 
-	CRailway *game = new CRailway(5, 5, 20);
+	CRailway *game = new CRailway(5, 5, 20, 1);
 	game->display();
 	while (1)
 	{
