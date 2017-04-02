@@ -33,7 +33,7 @@ private:
 
 public:
 
-	CTrack(int length, int pattern_length);
+	CTrack(int length);
 	void generate_pattern(int level);
 	int  pattern_length() { return pattern.size(); }
 	char get_first_car() { return track.top(); }
@@ -50,7 +50,7 @@ public:
 	bool check_sequence();
 };
 
-CTrack::CTrack(int max_capacity, int pattern_length)
+CTrack::CTrack(int max_capacity)
 {
 	capacity = max_capacity;
 	car_number = 0;
@@ -400,7 +400,7 @@ CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars
 
 	for (int i = 0; i < number_of_tracks; i++)
 	{
-		tracks.push_back(CTrack(tracks_capacity - level * 2, rand() % 2 + 3));
+		tracks.push_back(CTrack(tracks_capacity - level * 2));
 		tracks[i].generate_pattern(0);
 		if (level == 0) tracks[i].insert_cars();
 	}
