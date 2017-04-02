@@ -10,8 +10,14 @@
 #include <ctime>
 #include <list>
 #include <stack>
+#include <cstdlib>
 using namespace std;
 
+
+const int TRAIN_LENGTH = 70;
+const int TRACKS_CAPACITY = 11;
+const int TRACK_LENGTH = 20;
+const int VISIBLE_CARS = 5;
 
 #pragma region Track
 
@@ -22,11 +28,12 @@ private:
 	stack<char> track;
 	vector<char> pattern;
 	int capacity;
+	int car_number;
 
 public:
 
-	CTrack(int length);
-	void generate_pattern();
+	CTrack(int length, int pattern_length);
+	void generate_pattern(int level);
 	int  pattern_length() { return pattern.size(); }
 	char  get_rev_pattern_car(int number);
 	char get_first_car() { return track.top(); }
@@ -36,39 +43,82 @@ public:
 	bool is_filled() { return (track.size() < capacity) ? false : true; }
 	int  length() { return track.size(); }
 	void add_car(char value) { if (!is_filled()) track.push(value); }
+	void add_start_cars();
+	bool check_car_combination();
+	void delete_matched_cars();
 	int get_capacity() { return capacity; }
 };
 
-CTrack::CTrack(int max_capacity)
+CTrack::CTrack(int max_capacity, int pattern_length)
 {
 	capacity = max_capacity;
-	generate_pattern();
+	car_number = 0;
+	generate_pattern(0);
 	if (pattern.size() > capacity)  capacity = pattern.size();
+
+
 
 }
 
-void CTrack::generate_pattern()
+void CTrack::generate_pattern(int level)
 {
-	//srand(time(NULL));
 	pattern.clear();
-	for (int i = 0; i < rand() % 2 + 3; i++)
+	for (int i = 0; i < rand() % 2 + 3 + level; i++)
 	{
+		if (i > capacity) break;
 		pattern.push_back(rand() % 4 + 65);
 	}
 }
 
+void CTrack::add_start_cars()
+{
+	for (int i = 0; i < rand() % 3; i++)
+	{
+		track.push(pattern[pattern.size() - i - 1]);
+		car_number++;
+	}
+}
 
-char CTrack::get_rev_pattern_car(int number)
+
+char CTrack::get_rev_pattern_car(int number) ///!!!!!
 {
 	vector<char>::reverse_iterator rit;
 
 	int counter = 0;
 
-	for (rit = pattern.rbegin(); rit != pattern.rend() && counter < number; rit++);
+	for (rit = pattern.rbegin(); (rit + 1) != pattern.rend() && counter < number; rit++, counter++);  //rit+1 żeby nie wyszło poza zakres vectora
 
 	return *rit;
 }
 
+
+bool CTrack::check_car_combination()
+{
+
+	if (get_first_car() == get_rev_pattern_car(car_number)) car_number++;
+	else if (get_first_car() == get_rev_pattern_car(0))
+	{
+		car_number = 1;
+		return false;
+	}
+	else
+	{
+		car_number = 0;
+		return false;
+	}
+
+	if (car_number == pattern_length())
+	{
+		car_number = 0;
+		return true;
+	}
+	else return false;
+}
+
+void CTrack::delete_matched_cars()
+{
+	for (int i = 0; i < pattern_length(); i++)  delete_first_car();
+}
 #pragma endregion
 
 
@@ -85,7 +135,6 @@ public:
 	int length() { return train.size(); }
 	void resize(int number_of_cars);
 	void add_car() { train.push(rand() % 4 + 65); }
-	void add_car(char value) { train.push(value); }
 	char get_first_car();
 	void delete_first_car() { if (!train.empty()) train.pop(); }
 };
@@ -128,11 +177,11 @@ public:
 	void insertXY(int x, int y, char to_insert) { buffer[y][x] = to_insert; }
 	void insertXY(int x, int y, char* to_insert);
 	void insertXY(int x, int y, vector<char> to_insert);
-	void insertXY(int x, int y, int to_insert) { buffer[y][x] = to_insert + '0'; }
+	void insertXY(int x, int y, int to_insert);
 	void clearXY(int x, int y) { buffer[y][x] = ' '; }
 	void clearBuffer();
 	void writeTrack(int x, int y, int length, CTrack track);
-	void writeTrain(int x, int y, CTrain train);
+	void writeTrain(int x, int y, int visible_cars, CTrain train);
 	void print();
 };
 
@@ -191,6 +240,14 @@ void CBuffer::insertXY(int x, int y, vector<char> to_insert)
 		buffer[y][x + i] = to_insert[i];
 }
 
+void CBuffer::insertXY(int x, int y, int to_insert)
+{
+	char char_buffer[10];
+	_itoa_s(to_insert, char_buffer, 10);
+	for (size_t i = 0; char_buffer[i] != 0; i++)
+		buffer[y][x + i] = char_buffer[i];
+}
+
 void CBuffer::writeTrack(int x, int y, int template_length, CTrack track)
 {
 	int capacity = track.get_capacity();
@@ -207,9 +264,9 @@ void CBuffer::writeTrack(int x, int y, int template_length, CTrack track)
 	}
 }
 
-void CBuffer::writeTrain(int x, int y, CTrain train)
+void CBuffer::writeTrain(int x, int y, int visible_cars, CTrain train)
 {
-	for (int i = 5; i > 0; i--)
+	for (int i = visible_cars; i > 0; i--)
 	{
 		buffer[y][x + i] = train.get_first_car();
 		train.delete_first_car();
@@ -243,11 +300,16 @@ private:
 	CTrain train;
 	CBuffer *buffer;
 	int selected_track;
+	int score = 0;
+	int level;
+	bool game_over;
 public:
+	bool exit_game;
 	CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars);
 	~CRailway();
 	void move_car(int track_number);
-	bool check_car_combination(int track_number);
+	void make_turn(int track_number);
+	void menu();
 	void display();
 	void apply_template();
 	void parse_keys();
@@ -262,16 +324,17 @@ void CRailway::apply_template()
 
 	for (int i = 0; i < tracks.size(); i++)
 	{
-		if (i == 0)				//train.length
-			buffer->writeTrack(10 + (2 * i) + 5, (2 * i) + 1, 25 - (2 * i), tracks[i]);
+		int y = (2 * i) + 1;
+		if (i == 0)
+			buffer->writeTrack(VISIBLE_CARS + 5, y, TRACK_LENGTH + 5 - (2 * i), tracks[i]);
 		else
-			buffer->writeTrack(10 + (2 * i) + 10, (2 * i) + 1, 20 - (2 * i), tracks[i]);
+			buffer->writeTrack(VISIBLE_CARS + (2 * i) + 10, y, TRACK_LENGTH - (2 * i), tracks[i]);
 
-		buffer->insertXY(10 + 31, (2 * i) + 1, "TOR");
-		buffer->insertXY(10 + 35, (2 * i) + 1, i + 1);
-		buffer->insertXY(10 + 36, (2 * i) + 1, ": [");
-		buffer->insertXY(10 + 39, (2 * i) + 1, tracks[i].get_pattern());
-		buffer->insertXY(10 + 39 + tracks[i].pattern_length(), (2 * i) + 1, ']');
+		buffer->insertXY(VISIBLE_CARS + 31, y, "TOR");
+		buffer->insertXY(VISIBLE_CARS + 35, y, i + 1);
+		buffer->insertXY(VISIBLE_CARS + 36, y, ": [");
+		buffer->insertXY(VISIBLE_CARS + 39, y, tracks[i].get_pattern());
+		buffer->insertXY(VISIBLE_CARS + 39 + tracks[i].pattern_length(), y, ']');
 	}
 
 	switch (selected_track)
@@ -280,74 +343,24 @@ void CRailway::apply_template()
 		break;
 
 	case 5:
-		buffer->insertXY(25, 8, "\\\\");
-		buffer->insertXY(26, 9, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 15, 8, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 16, 9, "\\\\");
 
 	case 4:
-		buffer->insertXY(23, 6, "\\\\");
-		buffer->insertXY(24, 7, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 13, 6, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 14, 7, "\\\\");
 
 	case 3:
-		buffer->insertXY(21, 4, "\\\\");
-		buffer->insertXY(22, 5, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 11, 4, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 12, 5, "\\\\");
 
 	case 2:
-		buffer->insertXY(19, 2, "\\\\");
-		buffer->insertXY(20, 3, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 9, 2, "\\\\");
+		buffer->insertXY(VISIBLE_CARS + 10, 3, "\\\\");
 		break;
 	}
 
 	// szablon narysowany
-}
-/*
-bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
-{
-static int car_number = 0;
-bool found_combination = false;
-
-
-if(!car_number)
-{
-if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number))  car_number = 1;
-}
-else
-{
-if(tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
-else
-{
-car_number = 0;
-}
-}
-
-if (car_number == tracks[track_number].pattern_length())
-{
-found_combination = true;
-car_number = 0;
-
-}
-
-return found_combination;
-
-} */
-
-bool CRailway::check_car_combination(int track_number)      ///!! kombinacja w wektorze jest od konca
-{
-	static int car_number = 0;
-
-	if (tracks[track_number].get_first_car() == tracks[track_number].get_rev_pattern_car(car_number)) car_number++;
-	else
-	{
-		car_number = 0;
-		return false;
-	}
-
-	if (car_number == tracks[track_number].pattern_length())
-	{
-		car_number = 0;
-		return true;
-	}
-	else return false;
-
 }
 
 CRailway::~CRailway()
@@ -361,25 +374,62 @@ void CRailway::move_car(int track_number)
 {
 	if (train.length())
 	{
-		tracks[track_number - 1].add_car(train.get_first_car());
+		tracks[track_number].add_car(train.get_first_car());
 		train.delete_first_car();
 	}
 	//else cout << "There is no cars left" << endl;
 }
 
 
+void CRailway::make_turn(int track_number)
+{
 
+	if (!tracks[track_number].is_filled())
+	{
+		move_car(track_number);
+		if (level == 0) score++;
+
+		if (tracks[track_number].check_car_combination())
+		{
+
+			tracks[track_number].delete_matched_cars();
+
+			switch (level)
+			{
+			case 0:
+				break;
+			case 1:
+				tracks[track_number].generate_pattern(0);
+				break;
+			case 2:
+				tracks[track_number].generate_pattern(tracks[track_number].pattern_length() + 1);
+				break;
+			}
+
+			score += 10;
+
+		}
+
+
+	}
+	else game_over = true;
+
+}
 
 CRailway::CRailway(int number_of_tracks, int tracks_capacity, int number_of_cars) : train(number_of_cars)  ///!!!!!!!!!!!!!!!
 {
-	buffer = new CBuffer(60, 10);
-
-
+	buffer = new CBuffer(70, 10);
+	level = 0;
+	game_over = false;
+	selected_track = 1;
+	exit_game = false;
+	menu();
 	for (int i = 0; i < number_of_tracks; i++)
 	{
 
-		tracks.push_back(CTrack(tracks_capacity));
-		tracks[i].generate_pattern();
+		tracks.push_back(CTrack(tracks_capacity - level * 2, rand() % 2 + 3));
+		tracks[i].generate_pattern(0);
+		if (level == 0) tracks[i].add_start_cars();
 
 	}
 
@@ -398,7 +448,7 @@ void CRailway::parse_keys()
 		break;
 
 	case 'w':
-		move_car(selected_track);
+		make_turn(selected_track - 1);
 		break;
 
 	case '5':
@@ -419,13 +469,88 @@ void CRailway::parse_keys()
 		break;
 	}
 
-	
+
+}
+
+void CRailway::menu()
+{
+	int key;
+	//buffer->clearBuffer();
+	buffer->insertXY(25, 5, "Select level:");
+	buffer->insertXY(25, 6, "* Easy");
+	buffer->insertXY(27, 7, "Medium");
+	buffer->insertXY(27, 8, "Hard");
+	buffer->print();
+	key = _getch();
+
+	while (key != 13)
+	{
+		key = _getch();
+		if (key == 0 || key == 0xE0) key = _getch();
+
+		switch (key)
+		{
+		case 80:
+			level++;
+			if (level > 2) level = 0;
+			break;
+		case 72:
+			level--;
+			if (level < 0) level = 2;
+			break;
+		}
+
+		switch (level)
+		{
+		case 0:
+			buffer->clearXY(25, 7);
+			buffer->clearXY(25, 8);
+			buffer->insertXY(25, 6, "*");
+			break;
+		case 1:
+			buffer->clearXY(25, 6);
+			buffer->clearXY(25, 8);
+			buffer->insertXY(25, 7, "*");
+			break;
+		case 2:
+			buffer->clearXY(25, 6);
+			buffer->clearXY(25, 7);
+			buffer->insertXY(25, 8, "*");
+			break;
+		}
+
+		buffer->print();
+	}
+
 }
 
 void CRailway::display()
 {
 	apply_template();
-	buffer->writeTrain(1, 1, train);
+	buffer->writeTrain(1, 1, VISIBLE_CARS - level, train);
+	buffer->insertXY(60, 1, "Score: ");
+	buffer->insertXY(67, 1, score);
+
+	if (game_over)
+	{
+		buffer->clearBuffer();
+		buffer->insertXY(25, 5, "GAME OVER!");
+		buffer->insertXY(25, 6, "Score: ");
+		buffer->insertXY(32, 6, score);
+		buffer->print();
+		_getch();
+		exit_game = true;
+	}
+	if (score > 50)
+	{
+		buffer->clearBuffer();
+		buffer->insertXY(25, 5, "YOU WIN!");
+		buffer->insertXY(25, 6, "Score: ");
+		buffer->insertXY(32, 6, score);
+		buffer->print();
+		_getch();
+		exit_game = true;
+	}
 	buffer->print();
 }
 #pragma endregion
@@ -437,16 +562,14 @@ int main()
 
 	srand(time(NULL));
 
-	CRailway *game = new CRailway(5, 5, 10);
+	CRailway *game = new CRailway(5, TRACKS_CAPACITY, TRAIN_LENGTH);
 	game->display();
-	while (1)
+
+	while (!game->exit_game)
 	{
 		game->parse_keys();
 		game->display();
 	}
-
-
-	if (_getch() == 27) cout << "50";
 	delete game;
 	return 0;
 }
